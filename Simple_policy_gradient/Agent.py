@@ -41,7 +41,13 @@ class Agent:
         probs = self.MLPModel(state)
         action_probs = Categorical(probs=probs)
         logp = action_probs.log_prob(action)
+        # print(torch.unique(logp))
+        # print(probs.shape)
+        # print("shape of logp: {}, probs : {}, rewards : {}".format(logp.shape, probs.shape, reward.shape))
+        self.optimizer.zero_grad()
         loss = -(logp * reward).mean()
 
         loss.backward()
         self.optimizer.step()
+        
+        return loss

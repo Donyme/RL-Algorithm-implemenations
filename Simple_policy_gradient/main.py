@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v0')
-    agent = Agent(alpha=1e-3, n_actions=env.action_space.n)
-    n_games = 250
+    agent = Agent(alpha=1e-2, n_actions=env.action_space.n)
+    n_games = 50
     batch_size = 5000
 
     filename = 'cartpole.png'
@@ -34,14 +34,13 @@ if __name__ == '__main__':
         
         finished_rendering_this_epoch = False
         
-        score = 0
         while True:
             if (not finished_rendering_this_epoch) and render:
                 env.render()
 
             batch_observation.append(observation.copy())
             action = agent.choose_action(observation)
-            new_observation, reward, done, info = env.step(action)
+            observation, reward, done, info = env.step(action)
 
             batch_actions.append(action)
             ep_rewards.append(reward)
@@ -59,10 +58,10 @@ if __name__ == '__main__':
                 if len(batch_observation) > batch_size:
                         break
         
-        agent.learn(batch_states=batch_observation, batch_actions=batch_actions, batch_weights=batch_weights)
+        batch_loss = agent.learn(batch_states=batch_observation, batch_actions=batch_actions, batch_weights=batch_weights)
 
-        avg_score = np.mean(batch_returns[-100:])
-        print(avg_score)
+        avg_score = np.mean(batch_returns)
+        print("Epoch number: {}, Loss : {}, Average_returns: {}".format(i, batch_loss.item(), avg_score))
         score_history.append(avg_score)
 
         if avg_score > best_score:
